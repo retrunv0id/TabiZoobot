@@ -18,7 +18,7 @@ Registration bot : [HERE](https://t.me/tabizoobot/tabizoo?startapp=25dXTA)
    ```
 2. goto TabiZoo directory
    ```
-   cd TabiZoo
+   cd TabiZoobot
    ```
 3. install the require library
    ```
