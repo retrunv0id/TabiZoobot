@@ -14,7 +14,7 @@ Registration bot : [HERE](https://t.me/tabizoobot/tabizoo?startapp=25dXTA)
 
 1. Clone this repository
    ```
-   git clone https://github.com/retrunv0id/TabiZoo.git
+   git clone https://github.com/retrunv0id/TabiZoobot.git
    ```
 2. goto TabiZoo directory
    ```
