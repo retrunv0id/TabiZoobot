@@ -13,7 +13,6 @@ data_file = os.path.join(script_dir, "query_id.txt")
 class TabiZoo:
     def __init__(self):
         self.line = Fore.LIGHTWHITE_EX + "-" * 50
-        self.enable_level_up = False  # Initialize level-up option
 
     def headers(self, data):
         return {
@@ -50,12 +49,6 @@ class TabiZoo:
 
     def check_in(self, data):
         url = f"https://api.tabibot.com/api/user/v1/check-in"
-        headers = self.headers(data=data)
-        response = requests.post(url=url, headers=headers)
-        return response
-
-    def level_up(self, data):
-        url = f"https://api.tabibot.com/api/user/v1/level-up"
         headers = self.headers(data=data)
         response = requests.post(url=url, headers=headers)
         return response
@@ -115,7 +108,9 @@ class TabiZoo:
         level_up_choice = input("Do you want to enable level-up? (yes/no): ").strip().lower()
         self.enable_level_up = (level_up_choice == 'yes')
 
+    def main(self):
         while True:
+
             data = open(data_file, "r").read().splitlines()
             num_acc = len(data)
             self.log(self.line)
@@ -125,10 +120,13 @@ class TabiZoo:
                 self.log(self.line)
                 self.log(f"{Fore.LIGHTYELLOW_EX}Account number: {Fore.LIGHTWHITE_EX}{no+1}/{num_acc}")
 
-                # User info
+
+                #user infor
                 try:
                     user_info = self.user_info(data=data).json()
+
                     user = user_info["data"]["user"]
+
                     username = user["name"]
                     balance = user["coins"]
                     level = user["level"]
@@ -140,12 +138,17 @@ class TabiZoo:
                 except Exception as e:
                     self.log(f"{Fore.LIGHTRED_EX}Error getting account info: {str(e)}")
                 time.sleep(1)
-
-                # Task
+                
+                
+                
+                #task
                 try:
                     response = self.task_info(data=data)
+
                     if response.text.strip():
                         tasks2 = response.json()
+
+
                         for project2 in tasks2.get('data', []):
                             task_listt = project2.get('task_list', [])
                             for task in task_listt:
@@ -153,67 +156,112 @@ class TabiZoo:
                                 if status == 2:
                                     tag = task.get('task_tag')
                                     dtask3 = self.do_task(data=data, task_tag=tag).json()
+
                                     if dtask3.get("message") == "success":
                                         reward = dtask3["data"]['reward']
-                                        self.log(f"{Fore.LIGHTYELLOW_EX}Task completed: {Fore.LIGHTWHITE_EX}{tag} {Fore.LIGHTYELLOW_EX}Received: {Fore.LIGHTWHITE_EX}{reward}")
+                                        self.log(
+                                            f"{Fore.LIGHTYELLOW_EX}Task completed: {Fore.LIGHTWHITE_EX}{tag} {Fore.LIGHTYELLOW_EX}Received: {Fore.LIGHTWHITE_EX}{reward}")
+
                     else:
+
                         return response
+
                 except Exception as e:
                     self.log(f"{Fore.LIGHTRED_EX}Task error: {e}")
                 time.sleep(1)
 
-                # Task banner
+
+               
+               
+                #task banner
                 try:
                     tasks = self.banner_info(data=data).json()
+
                     for project in tasks.get('data', []):
                         task_list = project.get('title', [])
+
                         dtask = self.banner_task(data=data, task_tag=task_list).json()
+
                         status_d = dtask["data"]["user_project_status"]
                         if status_d == 2:
                             task_list1 = dtask["data"].get("list", [])
                             all_status_one = False
                             for task1 in task_list1:
                                 status = task1.get("user_task_status")
+
                                 if status == 2:
                                     tag = task1.get('task_tag')
                                     self.do_banner(data=data, task_tag=tag).json()
                                 else:
                                     all_status_one = True
                             if all_status_one:
+
                                 proj = self.do_project(data=data, task_tag=task_list).json()
+
                                 if proj.get("message") == "success":
                                     rew = proj["data"]["reward"]
                                     self.log(f"{Fore.LIGHTYELLOW_EX}Task completed: {Fore.LIGHTWHITE_EX}{task_list} {Fore.LIGHTYELLOW_EX}Received: {Fore.LIGHTWHITE_EX}{rew}")
+
                 except Exception as e:
                     self.log(f"{Fore.LIGHTRED_EX}Task error: {e}")
                 time.sleep(1)
-
-                # Claim 8hrs
+                
+                
+               
+               
+                #Claim 8hrs
                 try:
                     info = self.claim(data=data).json()
+
                     claim = info["data"]
                     if claim:
                         self.log(f"{Fore.LIGHTYELLOW_EX}Reward claimed")
                     else:
                         self.log(f"{Fore.LIGHTYELLOW_EX}Cooldown for reward not finished yet")
                 except Exception as e:
-                    self.log(f"{Fore.LIGHTRED_EX}Claim error: {e}")
+                    self.log(f"{Fore.LIGHTRED_EX}Reward error!")
+                time.sleep(1)
+                
+                
+                
+                
+                #check-in
+                try:
+                    check_in = self.check_in(data=data).json()
 
-                # Level-up
-                if self.enable_level_up:
-                    try:
-                        level_up = self.level_up(data=data).json()
-                        current_level = level_up['data']['user']["level"]
-                        if level_up["message"] == "success":
-                            self.log(f"{Fore.LIGHTYELLOW_EX}Upgraded")
-                            self.log(f"{Fore.LIGHTYELLOW_EX}Current level: {Fore.LIGHTWHITE_EX}{current_level}")
-                        else:
-                            self.log(f"{Fore.LIGHTYELLOW_EX}Upgrade not yet available")
-                    except Exception as e:
-                        self.log(f"{Fore.LIGHTRED_EX}Level-up error: {e}")
+                    if check_in["data"]["check_in_status"] == 1:
+                        self.log(f"{Fore.LIGHTYELLOW_EX}Check-in done")
+                    else:
+                        self.log(f"{Fore.LIGHTYELLOW_EX}Check-in has been claimed before")
+                except Exception as e:
+                    self.log(f"{Fore.LIGHTRED_EX}Check-in error!")
+                time.sleep(1)
 
-                end_at_list.append(time.time())
-                time.sleep(5)  # Adjust delay as needed
 
-if __name__ == "__main__":
-    TabiZoo().main()
+                #cooldown for next account
+                self.log(f"{Fore.LIGHTYELLOW_EX}----------> Wait 20s to run next account")
+                time.sleep(20)
+
+            
+            if end_at_list:
+                self.log(self.line)
+                min_time = min(end_at_list)
+                max_time = max(end_at_list)
+                interval = max_time - min_time
+                self.log(f"{Fore.LIGHTYELLOW_EX}Task completion time: {Fore.LIGHTWHITE_EX}{interval:.2f} sec.")
+            else:
+                self.log(f"{Fore.LIGHTYELLOW_EX}No tasks found for execution")
+
+
+            
+            #next turn
+            self.log(self.line)
+            self.log(f"{Fore.LIGHTYELLOW_EX}Sleeping: {Fore.LIGHTWHITE_EX} 8 hours")
+            self.log(self.line)
+            time.sleep(8*3600+60)
+
+if __name__ == '__main__':
+    os.system('cls' if os.name == 'nt' else 'clear')
+    init(autoreset=True)
+    tabi = TabiZoo()
+    tabi.main()
